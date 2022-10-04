@@ -13,12 +13,16 @@
 //
 //  0. You just DO WHAT THE FUCK YOU WANT TO.
 
-$MAP_W = 128;
-$MAP_H = 128;
+$MAP_W = 160;
+$MAP_H = 160;
 
 $MAX_ROOM = 16; // $MAP_W / 8;
 
+$CAM_SIZE = 30;
+
 $TOT_ROOM = 8 * 8;
+
+
 
 function action($cwid, $eves) {
     $mwid = $cwid;
@@ -52,25 +56,25 @@ function draw_room($mwid, $room, $nb) {
     $w = ywSizeW($room);
     $h = ywSizeH($room);
 
-    echo 'draw :x ', $x, ' - y: ',$y, ' w: ' ,
-        $w, ' h: ', $h, ' | ',$nb, PHP_EOL;
+    // echo 'draw :x ', $x, ' - y: ',$y, ' w: ' ,
+    //     $w, ' h: ', $h, ' | ',$nb, PHP_EOL;
 
     // Walls
     // up
     $start = ywPosCreate(floor($x - $w / 2), floor($y - $h / 2));
     $end = ywPosCreate(floor($x + $w / 2), floor($y - $h / 2));
-    ywMapDrawSegment($mwid, $start, $end, yeCreateInt(1), 0);
+    ywMapDrawSegment($mwid, $start, $end, yeCreateInt(1), $YMAP_DRAW_REPLACE_FIRST);
     // right
     $start = ywPosCreate(floor($x + $w / 2), floor($y + $h / 2));
-    ywMapDrawSegment($mwid, $start, $end, yeCreateInt(1), 0);
+    ywMapDrawSegment($mwid, $start, $end, yeCreateInt(1), $YMAP_DRAW_REPLACE_FIRST);
     // bottom
     $start = ywPosCreate(floor($x - $w / 2), floor($y + $h / 2));
     $end = ywPosCreate(floor($x + $w / 2), floor($y + $h / 2));
-    ywMapDrawSegment($mwid, $start, $end, yeCreateInt(1), 0);
+    ywMapDrawSegment($mwid, $start, $end, yeCreateInt(1), $YMAP_DRAW_REPLACE_FIRST);
     // left
     $start = ywPosCreate(floor($x - $w / 2), floor($y - $h / 2));
     $end = ywPosCreate(floor($x - $w / 2), floor($y + $h / 2));
-    ywMapDrawSegment($mwid, $start, $end, yeCreateInt(1), 0); 
+    ywMapDrawSegment($mwid, $start, $end, yeCreateInt(1), $YMAP_DRAW_REPLACE_FIRST); 
 }
 
 function mk_corridor($mwid, $rooms, $i)
@@ -125,11 +129,11 @@ function mk_corridor($mwid, $rooms, $i)
     $end_y = floor($target / 8); 
     $end_y = $end_y * $max_room + $max_room / 2 + (ywSizeH($targeted_room) * $y_target) / 2;
     ywMapDrawSegment($mwid, ywPosCreate($start_x, $start_y),
-                     ywPosCreate($end_x, $end_y), $id, 0);
-    echo 'corridor: ', $start_x, ' - ', $start_y, ' - ', $target, PHP_EOL;
+                     ywPosCreate($end_x, $end_y), $id, $YMAP_DRAW_REPLACE_FIRST);
+    //echo 'corridor: ', $YMAP_DRAW_REPLACE_FIRST, ' < ', $start_x, ' - ', $start_y, ' - ', $target, PHP_EOL;
 }
 
-function init_map($mwid) {
+function init_map($mwid, $pc) {
     $rooms = yeReCreateArray($mwid, "rooms");
     $tot_rooms = $GLOBALS["TOT_ROOM"];
     for ($i = 0; $i < $tot_rooms - i; $i++) {
@@ -148,6 +152,7 @@ function init_map($mwid) {
     for ($i = 0; $i < $tot_rooms - i; $i++) {
         mk_corridor($mwid, $rooms, $i);
     }
+
     //yePrint($mwid);
     // yePrint($rooms);
 }
@@ -157,6 +162,11 @@ function init_wid($cwid) {
  // if I want to create a container, having mwid and cwid diferent will be usefull
     $mwid = $cwid;
 
+    $pc = yeGet($cwid, 'pc');
+    if (!$pc) {
+        $pc = yeCreateArray($cwid, 'pc');
+        echo "CREATE PC !!!!\n";
+    }
     $el = yeCreateArray($resources);
     yeCreateString(".", $el, "map-char"); // 0
 
@@ -176,9 +186,14 @@ function init_wid($cwid) {
                     $GLOBALS['MAP_H']);
     yeCreateFunction('action', $cwid, 'action');
     yeCreateString('center', $mwid, 'cam-type');
-    ywRectCreateInts($pj_x, $pj_y, 30, 30, $cwid, 'cam');
+     ywSizeCreate(-$GLOBALS['CAM_SIZE'] / 2, -$GLOBALS['CAM_SIZE'] / 2,
+                  $cwid, 'cam-threshold');
+    yeCreateInt(4, $cwid, 'cam-pointer');
+    $cam = ywRectCreateInts(8, 7, $GLOBALS['CAM_SIZE'], $GLOBALS['CAM_SIZE'],
+                            $cwid, 'cam');
+    yePushBack($pc, $cam, 'pos'); // cam and pos are the same element
     yeCreateString("rgba: 10 10 10", $cwid, "background");
-    init_map($mwid);
+    init_map($mwid, $pc);
     yirl_return_wid($cwid, "map");
 }
 
