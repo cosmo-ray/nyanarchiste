@@ -34,17 +34,34 @@ function action($cwid, $eves) {
         else
             yesCall(ygGet('FinishGame'));
     }
+    $xadd = 0;
+    $yadd = 0;
+
+    $cur_floor = yeGetIntAt(ywMapCamPointedCase($mwid), 0), PHP_EOL;
 
     if (yevIsKeyDown($eves, $Y_LEFT_KEY)) {
-        ywMapCamAddX($mwid, -1);
+        $xadd = -1;
     } else if (yevIsKeyDown($eves, $Y_RIGHT_KEY)) {
-        ywMapCamAddX($mwid, +1);
+        $xadd = +1;
     }
 
     if (yevIsKeyDown($eves, $Y_UP_KEY)) {
-        ywMapCamAddY($mwid, -1);
+        $yadd = -1;
     } else if (yevIsKeyDown($eves, $Y_DOWN_KEY)) {
-        ywMapCamAddY($mwid, +1);
+        $yadd = +1;
+    }
+    if ($xadd || $yadd) {
+        ywMapCamAddX($mwid, $xadd);
+        ywMapCamAddY($mwid, $yadd);
+        if (ywMapCamPointedContainId($mwid, 1)) {
+            ywMapCamAddX($mwid, -$xadd);
+            ywMapCamAddY($mwid, -$yadd);
+        } else if ($cur_floor == 2 && $yadd) {
+            ywMapCamAddY($mwid, -$yadd);
+        } else if ($cur_floor == 3 && $xadd) {
+            ywMapCamAddX($mwid, -$xadd);
+        }
+        echo ywMapCamPointedContainId($mwid, 1), PHP_EOL;
     }
 
 }
@@ -186,8 +203,8 @@ function init_wid($cwid) {
                     $GLOBALS['MAP_H']);
     yeCreateFunction('action', $cwid, 'action');
     yeCreateString('center', $mwid, 'cam-type');
-     ywSizeCreate(-$GLOBALS['CAM_SIZE'] / 2, -$GLOBALS['CAM_SIZE'] / 2,
-                  $cwid, 'cam-threshold');
+    ywSizeCreate(-$GLOBALS['CAM_SIZE'] / 2, -$GLOBALS['CAM_SIZE'] / 2,
+                 $cwid, 'cam-threshold');
     yeCreateInt(4, $cwid, 'cam-pointer');
     $cam = ywRectCreateInts(8, 7, $GLOBALS['CAM_SIZE'], $GLOBALS['CAM_SIZE'],
                             $cwid, 'cam');
