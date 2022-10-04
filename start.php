@@ -97,18 +97,20 @@ function draw_room($mwid, $room, $nb) {
 function mk_corridor($mwid, $rooms, $i)
 {
     $room = yeGet($rooms, $i);
-    $target = $i;
-    $x_target = 0;
-    $y_target = 0;
     $x = $i & 7;
     $y = floor($i / 8);
     $max_room = $GLOBALS['MAX_ROOM'];
-    $start_x = $x * $max_room + $max_room / 2;
-    $start_y = $y * $max_room + $max_room / 2;
     $id = null;
 
     again:
+
+    $target = $i;
+    $x_target = 0;
+    $y_target = 0;
+    $start_x = $x * $max_room + $max_room / 2;
+    $start_y = $y * $max_room + $max_room / 2;
     $r = yuiRand() & 3;
+
     if ($r == 0) {
         if ($x == 7)
             goto again;
@@ -138,6 +140,9 @@ function mk_corridor($mwid, $rooms, $i)
         $start_y -= ywSizeH($room) / 2;
         $id = yeCreateInt(3);
     }
+    if (yeGetIntAt(ywMapCaseXY($mwid, $start_x, $start_y), 0) != 1)
+        goto again;
+    //yePrint(ywMapCaseXY($mwid, $start_x, $start_y));
 
     $targeted_room = yeGet($rooms, $target);
     $end_x = $target & 7; 
