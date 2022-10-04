@@ -80,18 +80,37 @@ function draw_room($mwid, $room, $nb) {
     // up
     $start = ywPosCreate(floor($x - $w / 2), floor($y - $h / 2));
     $end = ywPosCreate(floor($x + $w / 2), floor($y - $h / 2));
-    ywMapDrawSegment($mwid, $start, $end, yeCreateInt(1), $YMAP_DRAW_REPLACE_FIRST);
+    ywMapDrawSegment($mwid, $start, $end, yeCreateInt(1),
+                     $YMAP_DRAW_REPLACE_FIRST);
     // right
     $start = ywPosCreate(floor($x + $w / 2), floor($y + $h / 2));
-    ywMapDrawSegment($mwid, $start, $end, yeCreateInt(1), $YMAP_DRAW_REPLACE_FIRST);
+    ywMapDrawSegment($mwid, $start, $end, yeCreateInt(1),
+                     $YMAP_DRAW_REPLACE_FIRST);
     // bottom
     $start = ywPosCreate(floor($x - $w / 2), floor($y + $h / 2));
     $end = ywPosCreate(floor($x + $w / 2), floor($y + $h / 2));
-    ywMapDrawSegment($mwid, $start, $end, yeCreateInt(1), $YMAP_DRAW_REPLACE_FIRST);
+    ywMapDrawSegment($mwid, $start, $end, yeCreateInt(1),
+                     $YMAP_DRAW_REPLACE_FIRST);
     // left
     $start = ywPosCreate(floor($x - $w / 2), floor($y - $h / 2));
     $end = ywPosCreate(floor($x - $w / 2), floor($y + $h / 2));
-    ywMapDrawSegment($mwid, $start, $end, yeCreateInt(1), $YMAP_DRAW_REPLACE_FIRST); 
+    ywMapDrawSegment($mwid, $start, $end, yeCreateInt(1),
+                     $YMAP_DRAW_REPLACE_FIRST);
+}
+
+function place_objs($mwid, $rooms, $room_idx, $obj_id)
+{
+    $max_room = $GLOBALS['MAX_ROOM'];
+    $room = $rooms[$room_idx];
+    $x = yuiRand() % ywSizeW($room) - 2;
+    $x += ($room_idx & 7) * $max_room + $max_room / 2 - ywSizeW($room) / 2;
+    $y = yuiRand() % ywSizeH($room) - 1;
+    $y += floor($room_idx / 8) * $max_room + $max_room / 2 - ywSizeH($room) / 2;
+
+    if (yeLen(ywMapCaseXY($mwid, $x, $y)) > 1)
+        return;
+
+    ywMapPushNbr($mwid, $obj_id, ywPosCreate($x, $y), null);
 }
 
 function mk_corridor($mwid, $rooms, $i)
@@ -105,7 +124,7 @@ function mk_corridor($mwid, $rooms, $i)
 
     again:
 
-    if ($try == 4)
+    if ($try == 16)
         return;
     ++$try;
     $target = $i;
@@ -150,12 +169,15 @@ function mk_corridor($mwid, $rooms, $i)
 
     $targeted_room = yeGet($rooms, $target);
     $end_x = $target & 7; 
-    $end_x = $end_x * $max_room + $max_room / 2 + (ywSizeW($targeted_room) * $x_target) / 2;
+    $end_x = $end_x * $max_room + $max_room / 2 +
+           (ywSizeW($targeted_room) * $x_target) / 2;
 
     $end_y = floor($target / 8); 
-    $end_y = $end_y * $max_room + $max_room / 2 + (ywSizeH($targeted_room) * $y_target) / 2;
+    $end_y = $end_y * $max_room + $max_room / 2 +
+           (ywSizeH($targeted_room) * $y_target) / 2;
     ywMapDrawSegment($mwid, ywPosCreate($start_x, $start_y),
-                     ywPosCreate($end_x, $end_y), $id, $YMAP_DRAW_REPLACE_FIRST);
+                     ywPosCreate($end_x, $end_y), $id,
+                     $YMAP_DRAW_REPLACE_FIRST);
     //echo 'corridor: ', $YMAP_DRAW_REPLACE_FIRST, ' < ', $start_x, ' - ', $start_y, ' - ', $target, PHP_EOL;
 }
 
@@ -179,10 +201,16 @@ function init_map($mwid, $pc) {
         mk_corridor($mwid, $rooms, $i);
     }
 
+    // 5 more random corridor, because some rooms have more than 1 way to be access
     mk_corridor($mwid, $rooms, yuiRand() % $tot_rooms);
     mk_corridor($mwid, $rooms, yuiRand() % $tot_rooms);
     mk_corridor($mwid, $rooms, yuiRand() % $tot_rooms);
-    
+    mk_corridor($mwid, $rooms, yuiRand() % $tot_rooms);
+    mk_corridor($mwid, $rooms, yuiRand() % $tot_rooms);
+
+    for ($i = 0; $i < 20; ++$i)
+        place_objs($mwid, $rooms, yuiRand() % $tot_rooms,
+                   5 + (yuiRand() & 1));
 
     //yePrint($mwid);
     // yePrint($rooms);
@@ -213,10 +241,20 @@ function init_wid($cwid) {
     $el = yeCreateArray($resources);
     yeCreateString("@", $el, "map-char"); // 4
 
+    $el = yeCreateArray($resources);
+    yeCreateString("^", $el, "map-char"); // 5
+
+    $el = yeCreateArray($resources);
+    yeCreateString("/", $el, "map-char"); // 6
+
+    $el = yeCreateArray($resources);
+    yeCreateString("C", $el, "map-char"); // 7
+
+
     ywMapInitEntity($mwid, $resources, 0, $GLOBALS['MAP_W'],
                     $GLOBALS['MAP_H']);
     yeCreateFunction('action', $cwid, 'action');
-    //yeCreateString('center', $mwid, 'cam-type');
+    yeCreateString('center', $mwid, 'cam-type');
     ywSizeCreate(-$GLOBALS['CAM_SIZE'] / 2, -$GLOBALS['CAM_SIZE'] / 2,
                  $cwid, 'cam-threshold');
     yeCreateInt(4, $cwid, 'cam-pointer');
