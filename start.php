@@ -101,9 +101,13 @@ function mk_corridor($mwid, $rooms, $i)
     $y = floor($i / 8);
     $max_room = $GLOBALS['MAX_ROOM'];
     $id = null;
+    $try = 0;
 
     again:
 
+    if ($try == 4)
+        return;
+    ++$try;
     $target = $i;
     $x_target = 0;
     $y_target = 0;
@@ -175,6 +179,11 @@ function init_map($mwid, $pc) {
         mk_corridor($mwid, $rooms, $i);
     }
 
+    mk_corridor($mwid, $rooms, yuiRand() % $tot_rooms);
+    mk_corridor($mwid, $rooms, yuiRand() % $tot_rooms);
+    mk_corridor($mwid, $rooms, yuiRand() % $tot_rooms);
+    
+
     //yePrint($mwid);
     // yePrint($rooms);
 }
@@ -207,7 +216,7 @@ function init_wid($cwid) {
     ywMapInitEntity($mwid, $resources, 0, $GLOBALS['MAP_W'],
                     $GLOBALS['MAP_H']);
     yeCreateFunction('action', $cwid, 'action');
-    yeCreateString('center', $mwid, 'cam-type');
+    //yeCreateString('center', $mwid, 'cam-type');
     ywSizeCreate(-$GLOBALS['CAM_SIZE'] / 2, -$GLOBALS['CAM_SIZE'] / 2,
                  $cwid, 'cam-threshold');
     yeCreateInt(4, $cwid, 'cam-pointer');
