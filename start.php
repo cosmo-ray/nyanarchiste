@@ -37,7 +37,7 @@ function action($cwid, $eves) {
     $xadd = 0;
     $yadd = 0;
 
-    $cur_floor = yeGetIntAt(ywMapCamPointedCase($mwid), 0), PHP_EOL;
+    $cur_floor = yeGetIntAt(ywMapCamPointedCase($mwid), 0);
 
     if (yevIsKeyDown($eves, $Y_LEFT_KEY)) {
         $xadd = -1;
@@ -62,6 +62,18 @@ function action($cwid, $eves) {
             ywMapCamAddX($mwid, -$xadd);
         }
         echo ywMapCamPointedContainId($mwid, 1), PHP_EOL;
+    }
+    $cur_item = yeGetIntAt(ywMapCamPointedCase($mwid), 1);
+    if ($cur_item == 5 || $cur_item == 6) {
+        echo "ITEM: ", $cur_item, PHP_EOL;
+        ywMapPop($mwid, yeGet($mwid, 'cam'));
+    } else if ($cur_item == 7) {
+        echo "NEXT LEVEL !!!!!!: ", $cur_item, PHP_EOL;
+        echo "NEXT LEVEL !!!!!!: ", $cur_item, PHP_EOL;
+        echo "NEXT LEVEL !!!!!!: ", $cur_item, PHP_EOL;
+        echo "NEXT LEVEL !!!!!!: ", $cur_item, PHP_EOL;
+        echo "NEXT LEVEL !!!!!!: ", $cur_item, PHP_EOL;
+        echo "NEXT LEVEL !!!!!!: ", $cur_item, PHP_EOL;
     }
 
 }
@@ -108,9 +120,10 @@ function place_objs($mwid, $rooms, $room_idx, $obj_id)
     $y += floor($room_idx / 8) * $max_room + $max_room / 2 - ywSizeH($room) / 2;
 
     if (yeLen(ywMapCaseXY($mwid, $x, $y)) > 1)
-        return;
+        return false;
 
     ywMapPushNbr($mwid, $obj_id, ywPosCreate($x, $y), null);
+    return true;
 }
 
 function mk_corridor($mwid, $rooms, $i)
@@ -200,17 +213,14 @@ function init_map($mwid, $pc) {
     for ($i = 0; $i < $tot_rooms - i; $i++) {
         mk_corridor($mwid, $rooms, $i);
     }
+    for ($i = 0; $i < 15; ++$i)
+        mk_corridor($mwid, $rooms, yuiRand() % $tot_rooms);
 
-    // 5 more random corridor, because some rooms have more than 1 way to be access
-    mk_corridor($mwid, $rooms, yuiRand() % $tot_rooms);
-    mk_corridor($mwid, $rooms, yuiRand() % $tot_rooms);
-    mk_corridor($mwid, $rooms, yuiRand() % $tot_rooms);
-    mk_corridor($mwid, $rooms, yuiRand() % $tot_rooms);
-    mk_corridor($mwid, $rooms, yuiRand() % $tot_rooms);
 
     for ($i = 0; $i < 20; ++$i)
         place_objs($mwid, $rooms, yuiRand() % $tot_rooms,
                    5 + (yuiRand() & 1));
+    while (place_objs($mwid, $rooms, yuiRand() % $tot_rooms, 7) == false);
 
     //yePrint($mwid);
     // yePrint($rooms);
@@ -227,28 +237,31 @@ function init_wid($cwid) {
         echo "CREATE PC !!!!\n";
     }
     $el = yeCreateArray($resources);
-    yeCreateString(".", $el, "map-char"); // 0
+    yeCreateString(".", $el, "map-char"); // 0, floor
 
     $el = yeCreateArray($resources);
-    yeCreateString("#", $el, "map-char"); // 1
+    yeCreateString("#", $el, "map-char"); // 1, wall
 
     $el = yeCreateArray($resources);
-    yeCreateString("=", $el, "map-char"); // 2
+    yeCreateString("=", $el, "map-char"); // 2, horrizontal corridor
     $el = yeCreateArray($resources);
-    yeCreateString("H", $el, "map-char"); // 3
+    yeCreateString("H", $el, "map-char"); // 3, vertical corridor
 
-    
-    $el = yeCreateArray($resources);
-    yeCreateString("@", $el, "map-char"); // 4
 
     $el = yeCreateArray($resources);
-    yeCreateString("^", $el, "map-char"); // 5
+    yeCreateString("@", $el, "map-char"); // 4, pc
 
     $el = yeCreateArray($resources);
-    yeCreateString("/", $el, "map-char"); // 6
+    yeCreateString("^", $el, "map-char"); // 5, nekomimi
 
     $el = yeCreateArray($resources);
-    yeCreateString("C", $el, "map-char"); // 7
+    yeCreateString("/", $el, "map-char"); // 6, bat, weapon
+
+    $el = yeCreateArray($resources);
+    yeCreateString("C", $el, "map-char"); // 7, victory ?
+
+    $el = yeCreateArray($resources);
+    yeCreateString("R", $el, "map-char"); // 8, rat
 
 
     ywMapInitEntity($mwid, $resources, 0, $GLOBALS['MAP_W'],
