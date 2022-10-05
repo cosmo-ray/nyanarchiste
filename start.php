@@ -51,6 +51,7 @@ function action($cwid, $eves) {
     } else if (yevIsKeyDown($eves, $Y_DOWN_KEY)) {
         $yadd = +1;
     }
+
     if ($xadd || $yadd) {
         ywMapCamAddX($mwid, $xadd);
         ywMapCamAddY($mwid, $yadd);
@@ -64,7 +65,7 @@ function action($cwid, $eves) {
         }
         echo ywMapCamPointedContainId($mwid, 1), PHP_EOL;
     }
-    $cur_item = yeGetIntAt(ywMapCamPointedCase($mwid), 1);
+    $cur_item = ywMapIdAt(ywMapCamPointedCase($mwid), 1);
     if ($cur_item == 5 || $cur_item == 6) {
         $equipement = yeGet($pc, 'equipement');
         if ($cur_item == 5) {
@@ -87,6 +88,10 @@ function action($cwid, $eves) {
         echo "NEXT LEVEL !!!!!!: ", $cur_item, PHP_EOL;
         echo "NEXT LEVEL !!!!!!: ", $cur_item, PHP_EOL;
         echo "NEXT LEVEL !!!!!!: ", $cur_item, PHP_EOL;
+    } else if ($cur_item == 8) {
+        echo "OVER A MOD !!!!!!!!!";
+        ywMapCamAddX($mwid, -$xadd);
+        ywMapCamAddY($mwid, -$yadd);
     }
 
 }
@@ -135,8 +140,18 @@ function place_objs($mwid, $rooms, $room_idx, $obj_id)
     if (yeLen(ywMapCaseXY($mwid, $x, $y)) > 1)
         return false;
 
-    ywMapPushNbr($mwid, $obj_id, ywPosCreate($x, $y), null);
+    if (gettype($obj_id) == 'integer' || gettype($obj_id) == 'int')
+        ywMapPushNbr($mwid, $obj_id, ywPosCreate($x, $y), null);
+    else
+        ywMapPushElem($mwid, $obj_id, ywPosCreate($x, $y), null);
     return true;
+}
+
+function place_mob($mwid, $rooms, $room_idx, $obj_id)
+{
+    $o = yeCreateArray();
+    yeCreateInt($obj_id, $o, 'id');
+    return place_objs($mwid, $rooms, $room_idx, $o);
 }
 
 function mk_corridor($mwid, $rooms, $i)
@@ -234,6 +249,10 @@ function init_map($mwid, $pc) {
         place_objs($mwid, $rooms, yuiRand() % $tot_rooms,
                    5 + (yuiRand() & 1));
     while (place_objs($mwid, $rooms, yuiRand() % $tot_rooms, 7) == false);
+
+
+    for ($i = 0; $i < 20; ++$i)
+        place_mob($mwid, $rooms, yuiRand() % $tot_rooms, 8);
 
     //yePrint($mwid);
     // yePrint($rooms);
