@@ -25,6 +25,7 @@ $TOT_ROOM = 8 * 8;
 
 
 function action($cwid, $eves) {
+    $pc = yeGet($cwid, 'pc');
     $mwid = $cwid;
 
     echo "ACTION !" . PHP_EOL;
@@ -65,6 +66,18 @@ function action($cwid, $eves) {
     }
     $cur_item = yeGetIntAt(ywMapCamPointedCase($mwid), 1);
     if ($cur_item == 5 || $cur_item == 6) {
+        $equipement = yeGet($pc, 'equipement');
+        if ($cur_item == 5) {
+            yeIncrAt($equipement, 'hat');
+            echo "Nekomimi upgrade, Nekomimi is now a Nekomimi +".
+                yeGetIntAt($equipement, 'hat'). PHP_EOL;
+        } else if ($cur_item == 6) {
+            yeIncrAt($equipement, 'weapon');
+            echo "New Bassball bat upgrade !\nbat +".
+                (string)(yeGetIntAt($equipement, 'weapon') -1).
+                " to break head\nkill catpitalist pig, and bring peace, UwU".
+                PHP_EOL;
+        }
         echo "ITEM: ", $cur_item, PHP_EOL;
         ywMapPop($mwid, yeGet($mwid, 'cam'));
     } else if ($cur_item == 7) {
@@ -234,6 +247,15 @@ function init_wid($cwid) {
     $pc = yeGet($cwid, 'pc');
     if (!$pc) {
         $pc = yeCreateArray($cwid, 'pc');
+        $mlife = yeCreateInt(8, $pc, 'max_life');
+        yeCreateInt(yeGetInt($mlife), $pc, 'life');
+        yeCreateInt(0, $pc, 'xp');
+        $stats = yeCreateArray($pc, 'stats');
+        yeCreateInt(0, $stats, 'strength');
+        yeCreateInt(0, $stats, 'agility');
+        $equipement = yeCreateArray($pc, 'equipement');
+        yeCreateInt(1, $equipement, "weapon");
+        yeCreateInt(0, $equipement, "hat");
         echo "CREATE PC !!!!\n";
     }
     $el = yeCreateArray($resources);
