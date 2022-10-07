@@ -90,9 +90,9 @@ function action($cwid, $eves) {
                     yeGetIntAt($equipement, 'hat'));
         } else if ($cur_item == 6) {
             yeIncrAt($equipement, 'weapon');
-            add_msg($txwid, "New Bassball bat upgrade !\nbat +".
+            add_msg($txwid, "New Bassball bat upgrade ! bat +".
                     (string)(yeGetIntAt($equipement, 'weapon') -1).
-                    " to break head\nkill catpitalist pig, and bring peace, UwU");
+                    " to break head, and bring peace, UwU");
         } else if ($cur_item == 9) {
             add_msg($txwid, 'Nom nom nom, tuna onigiri wa oishi desu neeeeee ?');
             yeSetIntAt($pc, 'life', yeGetIntAt($pc, 'max_life'));
@@ -352,7 +352,7 @@ function init_wid($cwid) {
     yeCreateString('', $txwid, 'text');
     yeCreateArray($txwid, 'msgs');
     yeCreateInt(0, $txwid, 'msg_cnt');
-    add_msg($txwid, 'nyalcom to nyanachiste. an nyanarchist game not cringe at all, UwU');
+    add_msg($txwid, 'nyalcom to nyanachiste. an nyanarchist gamu not cringe at all, UwU');
     yeCreateString('rgba: 170 170 170', $txwid, 'text-color');
 
     $pc = yeGet($cwid, 'pc');
