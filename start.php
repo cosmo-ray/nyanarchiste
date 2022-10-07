@@ -18,17 +18,20 @@ $MAP_H = 160;
 
 $MAX_ROOM = 16; // $MAP_W / 8;
 
-$CAM_SIZE = 30;
+$CAM_SIZE = 14;
+$CAM_SIZE_W = 24;
 
 $TOT_ROOM = 8 * 8;
 
 
 
 function action($cwid, $eves) {
+    echo 'in action!\n';
     $pc = yeGet($cwid, 'pc');
     $equipement = yeGet($pc, 'equipement');
     $stats = yeGet($pc, 'stats');
-    $mwid = $cwid;
+    $mwid = ywCntGetEntry($cwid, 0);
+    echo "get mwid: ", $mwid, PHP_EOL;
 
     if (yevIsKeyDown($eves, $Y_ESC_KEY) || yevIsKeyDown($eves, $Y_Q_KEY)) {
         if (yeGet($cwid, "quit"))
@@ -120,6 +123,7 @@ function action($cwid, $eves) {
         ywMapCamAddY($mwid, -$yadd);
         atk_end:
     }
+    echo "out action !\n";
 
 }
 
@@ -307,7 +311,18 @@ function init_map($mwid, $pc) {
 function init_wid($cwid) { 
     $resources = yeCreateArray();
  // if I want to create a container, having mwid and cwid diferent will be usefull
-    $mwid = $cwid;
+    $entries = yeCreateArray($cwid, "entries");
+    $mwid = yeCreateArray($entries);
+    yeCreateInt(80, $mwid, 'size');
+    yeCreateString("map", $mwid, "<type>");
+
+    $txwid = yeCreateArray($entries);
+    yeCreateString("text-screen", $txwid, "<type>");
+    $margin = yeCreateArray($txwid, 'margin'); /// TODO !!!;
+    yeCreateInt(6, $margin, 'size');
+    yeCreateString('rgba: 170 170 170', $margin, 'color');
+    yeCreateString('nyalcom to nyanachiste. an nyanarchist game not cringe at all, UwU', $txwid, 'text');
+    yeCreateString('rgba: 170 170 170', $txwid, 'text-color');
 
     $pc = yeGet($cwid, 'pc');
     if (!$pc) {
@@ -354,21 +369,22 @@ function init_wid($cwid) {
     $el = yeCreateArray($resources);
     yeCreateString("o", $el, "map-char"); // 9, onigiri
 
-
     ywMapInitEntity($mwid, $resources, 0, $GLOBALS['MAP_W'],
                     $GLOBALS['MAP_H']);
     yeCreateFunction('action', $cwid, 'action');
+
     yeCreateString('center', $mwid, 'cam-type');
-    ywSizeCreate(-$GLOBALS['CAM_SIZE'] / 2, -$GLOBALS['CAM_SIZE'] / 2,
-                 $cwid, 'cam-threshold');
-    yeCreateInt(4, $cwid, 'cam-pointer');
-    $cam = ywRectCreateInts(8, 7, $GLOBALS['CAM_SIZE'], $GLOBALS['CAM_SIZE'],
-                            $cwid, 'cam');
+    ywSizeCreate(-$GLOBALS['CAM_SIZE_W'] / 2, -$GLOBALS['CAM_SIZE'] / 2,
+                 $mwid, 'cam-threshold');
+    yeCreateInt(4, $mwid, 'cam-pointer');
+    $cam = ywRectCreateInts(8, 7, $GLOBALS['CAM_SIZE_W'], $GLOBALS['CAM_SIZE'],
+                            $mwid, 'cam');
     yePushBack($pc, $cam, 'pos'); // cam and pos are the same element
     yeCreateString("rgba: 10 10 10", $cwid, "background");
     yeCreateInt(0, $mwid, 'level');
     init_map($mwid, $pc);
-    yirl_return_wid($cwid, "map");
+    yePrint($cwid);
+    yirl_return_wid($cwid, "container");
 }
 
 function mod_init($mod) {
