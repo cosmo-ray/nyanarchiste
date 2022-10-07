@@ -23,15 +23,29 @@ $CAM_SIZE_W = 24;
 
 $TOT_ROOM = 8 * 8;
 
-
+function add_msg($txwid, $str) {
+    $msgs = yeGet($txwid, 'msgs');
+    echo $str, PHP_EOL;
+    yeInsertAt($msgs, yeCreateString($str), 0, NULL);
+    yePrint($msgs);
+    yeIncrAt($txwid, 'msg_cnt');
+    if (yeGetIntAt($txwid, 'msg_cnt') > 4)
+        yePopBack($msgs);
+    yeSetStringAt($txwid, 'text',
+                  yeGetStringAt($msgs, 0). PHP_EOL .
+                  yeGetStringAt($msgs, 1). PHP_EOL .
+                  yeGetStringAt($msgs, 2). PHP_EOL .
+                  yeGetStringAt($msgs, 3));
+    echo yeGetStringAt($msgs, 0). yeGetStringAt($msgs, 1). yeGetStringAt($msgs, 2). yeGetStringAt($msgs, 3) . PHP_EOL;
+    yePrint($txwid);
+}
 
 function action($cwid, $eves) {
-    echo 'in action!\n';
     $pc = yeGet($cwid, 'pc');
     $equipement = yeGet($pc, 'equipement');
     $stats = yeGet($pc, 'stats');
     $mwid = ywCntGetEntry($cwid, 0);
-    echo "get mwid: ", $mwid, PHP_EOL;
+    $txwid = ywCntGetEntry($cwid, 1);
 
     if (yevIsKeyDown($eves, $Y_ESC_KEY) || yevIsKeyDown($eves, $Y_Q_KEY)) {
         if (yeGet($cwid, "quit"))
@@ -72,16 +86,15 @@ function action($cwid, $eves) {
     if ($cur_item == 5 || $cur_item == 6 || $cur_item == 9) {
         if ($cur_item == 5) {
             yeIncrAt($equipement, 'hat');
-            echo "Nekomimi upgrade, Nekomimi is now a Nekomimi +".
-                yeGetIntAt($equipement, 'hat'). PHP_EOL;
+            add_msg($txwid, "Nekomimi upgrade, Nekomimi is now a Nekomimi +".
+                    yeGetIntAt($equipement, 'hat'));
         } else if ($cur_item == 6) {
             yeIncrAt($equipement, 'weapon');
-            echo "New Bassball bat upgrade !\nbat +".
-                (string)(yeGetIntAt($equipement, 'weapon') -1).
-                " to break head\nkill catpitalist pig, and bring peace, UwU".
-                PHP_EOL;
+            add_msg($txwid, "New Bassball bat upgrade !\nbat +".
+                    (string)(yeGetIntAt($equipement, 'weapon') -1).
+                    " to break head\nkill catpitalist pig, and bring peace, UwU");
         } else if ($cur_item == 9) {
-            echo 'Nom nom nom, tuna onigiri wa oishi desu neeeeee ?' . PHP_EOL;
+            add_msg($txwid, 'Nom nom nom, tuna onigiri wa oishi desu neeeeee ?');
             yeSetIntAt($pc, 'life', yeGetIntAt($pc, 'max_life'));
         }
         ywMapPop($mwid, yeGet($mwid, 'cam'));
@@ -99,7 +112,7 @@ function action($cwid, $eves) {
     } else if ($cur_item == 8) {
         $enemy = yeGet(ywMapCamPointedCase($mwid), 1); 
         $pc_atk = 1 + yuiRand() % (yeGetIntAt($equipement, 'weapon') + yeGetIntAt($stats, 'strength') + 1);
-        echo yeGetStringAt($pc, 'name') . ' attack ' . yeGetStringAt($enemy, 'name') . ' for ' . (string) $pc_atk . PHP_EOL;
+        add_msg($txwid, yeGetStringAt($pc, 'name') . ' attack ' . yeGetStringAt($enemy, 'name') . ' for ' . (string) $pc_atk);
         yeAddAt($enemy, 'hp', -$pc_atk);
         if (yeGetIntAt($enemy, 'hp') < 0) {
             ywMapPop($mwid, yeGet($mwid, 'cam'));
@@ -107,7 +120,7 @@ function action($cwid, $eves) {
         }
         // enemy attack !
         $enemy_atk = 1 + yuiRand() % (yeGetIntAt($enemy, 'atk') + 1);
-        echo yeGetStringAt($enemy, 'name') . ' attack for ' . (string) $enemy_atk . PHP_EOL;
+        add_msg($txwid, yeGetStringAt($enemy, 'name') . ' attack for ' . (string) $enemy_atk);
         yeAddAt($pc, 'life', -$enemy_atk);
 
         if (yeGetIntAt($pc, 'life') < 0) {
@@ -123,7 +136,6 @@ function action($cwid, $eves) {
         ywMapCamAddY($mwid, -$yadd);
         atk_end:
     }
-    echo "out action !\n";
 
 }
 
@@ -321,7 +333,10 @@ function init_wid($cwid) {
     $margin = yeCreateArray($txwid, 'margin'); /// TODO !!!;
     yeCreateInt(6, $margin, 'size');
     yeCreateString('rgba: 170 170 170', $margin, 'color');
-    yeCreateString('nyalcom to nyanachiste. an nyanarchist game not cringe at all, UwU', $txwid, 'text');
+    yeCreateString('', $txwid, 'text');
+    yeCreateArray($txwid, 'msgs');
+    yeCreateInt(0, $txwid, 'msg_cnt');
+    add_msg($txwid, 'nyalcom to nyanachiste. an nyanarchist game not cringe at all, UwU');
     yeCreateString('rgba: 170 170 170', $txwid, 'text-color');
 
     $pc = yeGet($cwid, 'pc');
@@ -337,7 +352,6 @@ function init_wid($cwid) {
         $equipement = yeCreateArray($pc, 'equipement');
         yeCreateInt(1, $equipement, "weapon");
         yeCreateInt(0, $equipement, "hat");
-        echo "CREATE PC !!!!\n";
     }
     $el = yeCreateArray($resources);
     yeCreateString(".", $el, "map-char"); // 0, floor
@@ -383,7 +397,6 @@ function init_wid($cwid) {
     yeCreateString("rgba: 10 10 10", $cwid, "background");
     yeCreateInt(0, $mwid, 'level');
     init_map($mwid, $pc);
-    yePrint($cwid);
     yirl_return_wid($cwid, "container");
 }
 
