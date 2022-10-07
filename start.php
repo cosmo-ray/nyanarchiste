@@ -112,15 +112,31 @@ function action($cwid, $eves) {
     } else if ($cur_item == 8) {
         $enemy = yeGet(ywMapCamPointedCase($mwid), 1); 
         $pc_atk = 1 + yuiRand() % (yeGetIntAt($equipement, 'weapon') + yeGetIntAt($stats, 'strength') + 1);
-        add_msg($txwid, yeGetStringAt($pc, 'name') . ' attack ' . yeGetStringAt($enemy, 'name') . ' for ' . (string) $pc_atk);
         yeAddAt($enemy, 'hp', -$pc_atk);
         if (yeGetIntAt($enemy, 'hp') < 0) {
+            $r = yuiRand() % 4;
+            $kill_msg = ' kill ';
+
+            if ($r == 0)
+                $kill_msg = ' deradicalise ~~~~ ';
+            else if ($r == 1)
+                $kill_msg = ' explain katprokinnyu the hard way to ';
+            add_msg($txwid, yeGetStringAt($pc, 'name') .
+                    $kill_msg . yeGetStringAt($enemy, 'name'));
             ywMapPop($mwid, yeGet($mwid, 'cam'));
             goto atk_end;
         }
+        $end_msd = ' and seems in a good state';
+        if (yeGetIntAt($enemy, 'hp') < 4)
+            $end_msd = ', and is near dead';
+        add_msg($txwid, yeGetStringAt($pc, 'name') .
+                ' attack ' . yeGetStringAt($enemy, 'name') .
+                ' for ' . (string) $pc_atk . $end_msd);
         // enemy attack !
         $enemy_atk = 1 + yuiRand() % (yeGetIntAt($enemy, 'atk') + 1);
-        add_msg($txwid, yeGetStringAt($enemy, 'name') . ' attack for ' . (string) $enemy_atk);
+        add_msg($txwid, yeGetStringAt($enemy, 'name') .
+                ' attack for ' . (string) $enemy_atk .
+                ' ' . yeGetStringAt($pc, 'name') . ' life left: ' . yeGetIntAt($pc, 'life'));
         yeAddAt($pc, 'life', -$enemy_atk);
 
         if (yeGetIntAt($pc, 'life') < 0) {
@@ -176,7 +192,7 @@ function place_objs($mwid, $rooms, $room_idx, $obj_id)
     $max_room = $GLOBALS['MAX_ROOM'];
     $room = $rooms[$room_idx];
     $x = yuiRand() % ywSizeW($room) - 2;
-    $x += ($room_idx & 7) * $max_room + $max_room / 2 - ywSizeW($room) / 2;
+    $x += ($room_idx & 7) * $max_room + $max_room / 2 - ywSizeW($room) / 2 + 1;
     $y = yuiRand() % ywSizeH($room) - 1;
     $y += floor($room_idx / 8) * $max_room + $max_room / 2 - ywSizeH($room) / 2;
 
