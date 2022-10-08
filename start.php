@@ -3,7 +3,7 @@
  * ----------------------------------------------------------------------------
  * "THE BEER-WARE LICENSE" (Revision 43):
  * <matthias.gatto@protonmail.com> wrote this file.
- * As long as you retain this notice you
+ *  As long as you retain this notice you
  * can do whatever you want with this stuff. If we meet some day, and you think
  * this stuff is worth it, you can buy me a beer in return Matthias Gatto
  * ----------------------------------------------------------------------------
@@ -379,6 +379,22 @@ function init_wid($cwid) {
 
     $el = yeCreateArray($resources);
     yeCreateString("@", $el, "map-char"); // 4, pc
+    yeCreateString("                " .
+                   ".        .     *" .
+                   " #.###..#     **" .
+                   " .# .  . .   ** " .
+                   " ##  .   .  **  " .
+                   "###     .. *    " .
+                   "####.......     " .
+                   " ##  .  ..      ",
+                   $el, "map-pixels"); // 4, pc
+    $pix_infi = yeCreateArray($el, 'map-pixels-info');
+    $pix_mapping = yeCreateArray($pix_infi, 'mapping');
+    yeCreateInt(0xffffffff, $pix_mapping, '.');
+    yeCreateInt(0x523a28ff, $pix_mapping, '*');
+    yeCreateInt(0x7a7a7aff, $pix_mapping, '#');
+    ywSizeCreate(2, 4, $pix_infi, 'pix_per_char');
+    ywSizeCreate(16, 8, $pix_infi, 'size');
 
     $el = yeCreateArray($resources);
     yeCreateString("^", $el, "map-char"); // 5, nekomimi
