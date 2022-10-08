@@ -23,7 +23,6 @@ function add_msg($txwid, $str) {
     $msgs = yeGet($txwid, 'msgs');
     echo $str, PHP_EOL;
     yeInsertAt($msgs, yeCreateString($str), 0, NULL);
-    yePrint($msgs);
     yeIncrAt($txwid, 'msg_cnt');
     if (yeGetIntAt($txwid, 'msg_cnt') > 4)
         yePopBack($msgs);
@@ -32,8 +31,6 @@ function add_msg($txwid, $str) {
                   yeGetStringAt($msgs, 1). PHP_EOL .
                   yeGetStringAt($msgs, 2). PHP_EOL .
                   yeGetStringAt($msgs, 3));
-    echo yeGetStringAt($msgs, 0). yeGetStringAt($msgs, 1). yeGetStringAt($msgs, 2). yeGetStringAt($msgs, 3) . PHP_EOL;
-    yePrint($txwid);
 }
 
 function action($cwid, $eves) {
@@ -154,8 +151,6 @@ function action($cwid, $eves) {
             else
                 yesCall(ygGet('FinishGame'));
         }
-        yePrint($pc);
-        yePrint($enemy);
         ywMapCamAddX($mwid, -$xadd);
         ywMapCamAddY($mwid, -$yadd);
         atk_end:
