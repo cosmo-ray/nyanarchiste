@@ -216,6 +216,7 @@ function action($cwid, $eves) {
             
         }
     }
+    return $YEVE_ACTION;
 }
 
 function draw_room($mwid, $room, $nb) {
@@ -490,7 +491,7 @@ function init_wid($cwid) {
     yeCreateString("o", $el, "map-char"); // 9, onigiri
 
     $el = yeCreateArray($resources);
-    yeCreateString("*", $el, "map-char"); // 10, pc
+    yeCreateString("*", $el, "map-char"); // 10, evolve
 
     $el = yeCreateArray($resources);
     yeCreateString("p", $el, "map-char"); // 11, patch, tmp +1 life
