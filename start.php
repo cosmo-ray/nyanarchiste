@@ -422,7 +422,7 @@ function init_wid($cwid) {
     yeCreateString("text-screen", $txwid, "<type>");
     $margin = yeCreateArray($txwid, 'margin'); /// TODO !!!;
     yeCreateInt(6, $margin, 'size');
-    yeCreateString('rgba: 170 170 170', $margin, 'color');
+    yeCreateString('rgba: 170 170 170 220', $margin, 'color');
     yeCreateString('', $txwid, 'text');
     yeCreateArray($txwid, 'msgs');
     yeCreateInt(0, $txwid, 'msg_cnt');
@@ -509,7 +509,7 @@ function init_wid($cwid) {
     $cam = ywRectCreateInts(8, 7, $GLOBALS['CAM_SIZE_W'], $GLOBALS['CAM_SIZE'],
                             $mwid, 'cam');
     yePushBack($pc, $cam, 'pos'); // cam and pos are the same element
-    yeCreateString("rgba: 10 10 10", $cwid, "background");
+    yeCreateString("rgba: 10 10 10 255", $cwid, "background");
     yeCreateInt(0, $mwid, 'level');
     yeCreateInt(3, $mwid, 'last_level');
     init_map($mwid, $pc);
