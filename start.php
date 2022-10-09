@@ -78,7 +78,8 @@ function action($cwid, $eves) {
         }
     }
     $cur_item = ywMapIdAt(ywMapCamPointedCase($mwid), 1);
-    if ($cur_item == 5 || $cur_item == 6 || $cur_item == 9  || $cur_item == 10) {
+    if ($cur_item == 5 || $cur_item == 6 || $cur_item == 9  ||
+        $cur_item == 10 || $cur_item == 11) {
         if ($cur_item == 5) {
             yeIncrAt($equipement, 'hat');
             add_msg($txwid, "Nekomimi upgrade, Nekomimi is now a Nekomimi +".
@@ -96,6 +97,9 @@ function action($cwid, $eves) {
             yeSetStringAt($equipement, 'hat_name', 'iron nekomimi');
             add_msg($txwid, $old_hat . ' evolve to ' .
                     yeGetStringAt($equipement, 'hat_name'));
+        } else if ($cur_item == 11) {
+            add_msg($txwid, 'Apply a patch Kyuuuu');
+            yeIncrAt($pc, 'life');
         }
         ywMapPop($mwid, yeGet($mwid, 'cam'));
     } else if ($cur_item == 7) {
@@ -189,6 +193,7 @@ function action($cwid, $eves) {
                         $enemy_atk = 0;
                     yeAddAt($pc, 'life', -$enemy_atk);
                     add_msg($txwid, yeGetStringAt($mob, 'name') .
+                            ' lvl '. yeGetIntAt($mob, 'lvl').
                             ' attack for ' . (string) $enemy_atk .
                             ' ' . yeGetStringAt($pc, 'name') . ' life left: ' . yeGetIntAt($pc, 'life'));
 
@@ -376,9 +381,13 @@ function init_map($mwid, $pc) {
         mk_corridor($mwid, $rooms, yuiRand() % $tot_rooms);
 
 
-    for ($i = 0; $i < 20; ++$i)
+    for ($i = 0; $i < 20; ++$i) {
+        $rid = yuiRand() & 1;
+        if ($rid == 1 && (yuiRand() & 1) == 1)
+            $rid = 6;
         place_objs($mwid, $rooms, yuiRand() % $tot_rooms,
-                   5 + (yuiRand() & 1));
+                   5 + $rid);
+    }
     while (place_objs($mwid, $rooms, yuiRand() % $tot_rooms, 9) == false);
     while (place_objs($mwid, $rooms, yuiRand() % $tot_rooms, 9) == false);
     while (place_objs($mwid, $rooms, yuiRand() % $tot_rooms, 9) == false);
@@ -388,9 +397,13 @@ function init_map($mwid, $pc) {
     $map_lvl = yeGetIntAt($mwid, 'level');
     $nb_mob = 20;
     $nb_mob += $map_lvl * 8;
-    for ($i = 0; $i < $nb_mob; ++$i)
+    for ($i = 0; $i < $nb_mob; ++$i) {
+        $strong = 0;
+        while (yuiRand() & 3)
+            ++$strong;
         place_mob($mwid, $rooms, yuiRand() % $tot_rooms, 8,
-                  yuiRand() % $map_lvl);
+                  $strong + yuiRand() % ($map_lvl + 1));
+    }
 
     //yePrint($mwid);
     // yePrint($rooms);
@@ -462,10 +475,10 @@ function init_wid($cwid) {
     ywSizeCreate(16, 8, $pix_infi, 'size');
 
     $el = yeCreateArray($resources);
-    yeCreateString("^", $el, "map-char"); // 5, nekomimi
+    yeCreateString("/", $el, "map-char"); // 5, bat, weapon
 
     $el = yeCreateArray($resources);
-    yeCreateString("/", $el, "map-char"); // 6, bat, weapon
+    yeCreateString("^", $el, "map-char"); // 6, nekomimi
 
     $el = yeCreateArray($resources);
     yeCreateString(">", $el, "map-char"); // 7, victory ?
@@ -478,6 +491,9 @@ function init_wid($cwid) {
 
     $el = yeCreateArray($resources);
     yeCreateString("*", $el, "map-char"); // 10, pc
+
+    $el = yeCreateArray($resources);
+    yeCreateString("p", $el, "map-char"); // 11, patch, tmp +1 life
 
     ywMapInitEntity($mwid, $resources, 0, $GLOBALS['MAP_W'],
                     $GLOBALS['MAP_H']);
