@@ -399,7 +399,7 @@ function init_map($mwid, $pc) {
     $nb_mob += $map_lvl * 8;
     for ($i = 0; $i < $nb_mob; ++$i) {
         $strong = 0;
-        while (yuiRand() & 3)
+        while (!(yuiRand() & 3))
             ++$strong;
         place_mob($mwid, $rooms, yuiRand() % $tot_rooms, 8,
                   $strong + yuiRand() % ($map_lvl + 1));
