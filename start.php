@@ -420,7 +420,7 @@ function init_wid($cwid) {
 
     $txwid = yeCreateArray($entries);
     yeCreateString("text-screen", $txwid, "<type>");
-    $margin = yeCreateArray($txwid, 'margin'); /// TODO !!!;
+    $margin = yeCreateArray($txwid, 'margin');
     yeCreateInt(6, $margin, 'size');
     yeCreateString('rgba: 170 170 170 220', $margin, 'color');
     yeCreateString('', $txwid, 'text');
@@ -441,6 +441,7 @@ function init_wid($cwid) {
         yeCreateInt(0, $stats, 'agility');
         $equipement = yeCreateArray($pc, 'equipement');
         yeCreateInt(1, $equipement, "weapon");
+        yeCreateString('bat', $equipement, "weapon_name");
         yeCreateString('nekomimi', $equipement, "hat_name");
         yeCreateInt(0, $equipement, "hat");
     }
