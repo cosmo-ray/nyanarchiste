@@ -94,10 +94,14 @@ function action($cwid, $eves) {
             add_msg($txwid, 'Nom nom nom, tuna onigiri wa oishi desu neeeeee ?');
             yeSetIntAt($pc, 'life', yeGetIntAt($pc, 'max_life'));
         } else if ($cur_item == 10) {
-            $old_hat = yeGetStringAt($equipement, 'hat_name');
-            yeSetStringAt($equipement, 'hat_name', 'iron nekomimi');
-            add_msg($txwid, $old_hat . ' evolve to ' .
-                    yeGetStringAt($equipement, 'hat_name'));
+            if ($map_lvl == 0) {
+                $old_hat = yeGetStringAt($equipement, 'hat_name');
+                yeSetStringAt($equipement, 'hat_name', 'iron nekomimi');
+                add_msg($txwid, $old_hat . ' evolve to ' .
+                        yeGetStringAt($equipement, 'hat_name'));
+            } else {
+                add_msg($txwid, 'find evolve an Evolve gem UwW... but nothing evolve :(');
+            }
         } else if ($cur_item == 11) {
             add_msg($txwid, 'Apply a patch Kyuuuu');
             yeIncrAt($pc, 'life');
