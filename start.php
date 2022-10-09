@@ -80,13 +80,14 @@ function action($cwid, $eves) {
     $cur_item = ywMapIdAt(ywMapCamPointedCase($mwid), 1);
     if ($cur_item == 5 || $cur_item == 6 || $cur_item == 9  ||
         $cur_item == 10 || $cur_item == 11) {
-        if ($cur_item == 5) {
+        if ($cur_item == 6) {
             yeIncrAt($equipement, 'hat');
             add_msg($txwid, "Nekomimi upgrade, Nekomimi is now a Nekomimi +".
                     yeGetIntAt($equipement, 'hat'));
-        } else if ($cur_item == 6) {
+        } else if ($cur_item == 5) {
             yeIncrAt($equipement, 'weapon');
-            add_msg($txwid, "New Bassball bat upgrade ! bat +".
+            add_msg($txwid, "New weapon upgrade ! " .
+                    yeGetStringAt($equipement, 'weapon_name') . " +".
                     (string)(yeGetIntAt($equipement, 'weapon') -1).
                     " to break head, and bring peace, UwU");
         } else if ($cur_item == 9) {
