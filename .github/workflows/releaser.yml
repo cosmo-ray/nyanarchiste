@@ -24,12 +24,12 @@ jobs:
           cp -rf * ../nyanarchiste_I_use_Arch_BTW/
           mv ../nyanarchiste_I_use_Arch_BTW .
           cp -rf nyanarchiste_I_use_Arch_BTW nyanarchiste_windows
-          wget -q https://github.com/cosmo-ray/yirl/releases/download/latest/yirl-mods.tar.gz
+          wget -q https://github.com/cosmo-ray/yirl/releases/download/latest/yirl.tar.gz
           wget -q https://github.com/cosmo-ray/yirl/releases/download/latest_win/yirl.zip
-          mv yirl-mods.tar.gz nyanarchiste_I_use_Arch_BTW
+          mv yirl.tar.gz nyanarchiste_I_use_Arch_BTW
           cd nyanarchiste_I_use_Arch_BTW
-          tar -xf yirl-mods.tar.gz
-          rm yirl-mods.tar.gz
+          tar -xf yirl.tar.gz
+          rm yirl.tar.gz
           echo nyanarchiste_I_use_Arch_BTW
           echo '#!/bin/bash' > nyanarchiste.sh
           chmod +x nyanarchiste.sh
@@ -42,8 +42,6 @@ jobs:
           cd tmp
           unzip yirl.zip
           cd ..
-          mv tmp/modules/* modules/
-          rm -rvf tmp/modules
           mv tmp/* .
           rm -rvf tmp
           mv yirl-loader.exe Nyanarchiste.exe
