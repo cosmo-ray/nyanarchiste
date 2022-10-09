@@ -48,6 +48,8 @@ function action($cwid, $eves) {
     }
     $xadd = 0;
     $yadd = 0;
+    $map_lvl = yeGetIntAt($mwid, 'level');
+
 
     $cur_floor = yeGetIntAt(ywMapCamPointedCase($mwid), 0);
 
@@ -97,16 +99,20 @@ function action($cwid, $eves) {
         }
         ywMapPop($mwid, yeGet($mwid, 'cam'));
     } else if ($cur_item == 7) {
-        echo "NEXT LEVEL !!!!!!: ", $cur_item, PHP_EOL;
-        echo "NEXT LEVEL !!!!!!: ", $cur_item, PHP_EOL;
-        echo "NEXT LEVEL !!!!!!: ", $cur_item, PHP_EOL;
-        echo "NEXT LEVEL !!!!!!: ", $cur_item, PHP_EOL;
-        echo "NEXT LEVEL !!!!!!: ", $cur_item, PHP_EOL;
-        echo "NEXT LEVEL !!!!!!: ", $cur_item, PHP_EOL;
-        if (yeGet($cwid, "win"))
-            yesCall(yeGet($cwid, "win")); // Untested
-        else
-            yesCall(ygGet('FinishGame'));
+        $last_lvl = yeGetIntAt($mwid, 'last_level');
+
+        if ($map_lvl < $last_lvl) {
+            ywMapReset($mwid);
+            yeIncrAt($mwid, 'level');
+            ywMapSetCamPos($mwid, ywPosCreate(8, 7));
+            init_map($mwid, $pc);
+            echo "NEW LEVEL !!!\n";
+        } else {
+            if (yeGet($cwid, "win"))
+                yesCall(yeGet($cwid, "win")); // Untested
+            else
+                yesCall(ygGet('FinishGame'));
+        }
     } else if ($cur_item == 8) {
         $enemy = yeGet(ywMapCamPointedCase($mwid), 1); 
         $pc_atk = 1 + yuiRand() % (yeGetIntAt($equipement, 'weapon') + yeGetIntAt($stats, 'strength') + 1);
@@ -131,31 +137,80 @@ function action($cwid, $eves) {
                 ' attack ' . yeGetStringAt($enemy, 'name') .
                 ' for ' . (string) $pc_atk . $end_msd);
 
-
-        // enemy attack !
-        $pc_def = 0;
-        if (yeGetStringAt($equipement, 'hat_name') == 'iron nekomimi')
-            $pc_def = yeGetIntAt($equipement, 'hat');
-        $enemy_atk = (1 + yuiRand() % (yeGetIntAt($enemy, 'atk') + 1)) - $pc_def;
-        if ($enemy_atk < 0)
-            $enemy_atk = 0;
-        yeAddAt($pc, 'life', -$enemy_atk);
-        add_msg($txwid, yeGetStringAt($enemy, 'name') .
-                ' attack for ' . (string) $enemy_atk .
-                ' ' . yeGetStringAt($pc, 'name') . ' life left: ' . yeGetIntAt($pc, 'life'));
-
-        if (yeGetIntAt($pc, 'life') < 0) {
-            echo "YOU LOSE 'CAUS YOUR MEDIOCRE AT BEST" . PHP_EOL;
-            if (yeGet($cwid, "lose"))
-                yesCall(yeGet($cwid, "lose")); // Untested
-            else
-                yesCall(ygGet('FinishGame'));
-        }
         ywMapCamAddX($mwid, -$xadd);
         ywMapCamAddY($mwid, -$yadd);
         atk_end:
     }
 
+    // handle monster movement here,
+    // move only if enemies are in the same room as PC
+    if ($cur_floor == 0 && ($xadd || $yadd)) {
+        $max_room = $GLOBALS['MAX_ROOM'];
+        $cam = yeGet($mwid, 'cam');
+        $cur_room = floor(ywRectX($cam) / $max_room) +
+                  8 * floor(ywRectY($cam) / $max_room);
+        $mobs = yeGet($mwid, 'elem-get');
+        for ($i = 0; $i < yeLen($mobs); ++$i) {
+            $mob = yeGet($mobs, $i);
+            if (yeGetIntAt($mob, 'hp') < 0)
+                continue;
+            $mob_room = yeGetIntAt($mob, 'room_idx');
+            if ($mob_room == $cur_room) {
+                $midx = yeGetIntAt($mob, '_map_idx');
+                $mx = $midx % 160;
+                $my = floor($midx / 160);
+                $mo_pos = ywPosCreate($mx, $my);
+                $mv_pos = ywPosCreate($mx, $my);
+                if ($mx > ywRectX($cam)) {
+                    ywPosAddXY($mv_pos, -1, 0);
+                } else if ($mx < ywRectX($cam)) {
+                    ywPosAddXY($mv_pos, 1, 0);
+                }
+                if ($my > ywRectY($cam)) {
+                    ywPosAddXY($mv_pos, 0, -1);
+                } else if ($my < ywRectY($cam)) {
+                    ywPosAddXY($mv_pos, 0, 1);
+                }
+
+                $mob_targeted_case = ywMapCase($mwid, $mv_pos);
+                if (yeLen($mob_targeted_case) > 1 ||
+                    yeGetIntAt($mob_targeted_case, 0) == 1) {
+                    continue;
+                } else if (ywPosIsSameEnt($cam, $mv_pos)) {
+                            // enemy attack !
+                    $pc_def = 0;
+                    if (yeGetStringAt($equipement, 'hat_name') ==
+                        'iron nekomimi')
+                        $pc_def = yeGetIntAt($equipement, 'hat');
+                    $enemy_atk = (1 +
+                                  yuiRand() % (yeGetIntAt($mob, 'atk') + 1)) -
+                               $pc_def;
+                    if ($enemy_atk < 0)
+                        $enemy_atk = 0;
+                    yeAddAt($pc, 'life', -$enemy_atk);
+                    add_msg($txwid, yeGetStringAt($mob, 'name') .
+                            ' attack for ' . (string) $enemy_atk .
+                            ' ' . yeGetStringAt($pc, 'name') . ' life left: ' . yeGetIntAt($pc, 'life'));
+
+                    if (yeGetIntAt($pc, 'life') < 0) {
+                        echo "YOU LOSE 'CAUS YOUR MEDIOCRE AT BEST" . PHP_EOL;
+                        if (yeGet($cwid, "lose"))
+                            yesCall(yeGet($cwid, "lose")); // Untested
+                        else
+                            yesCall(ygGet('FinishGame'));
+                    }
+
+                    echo "can attack PC !!!";
+                    continue;
+                } else if (!ywPosIsSameEnt($mo_pos, $mv_pos)) {
+                    ywPosPrint($mo_pos);
+                    ywPosPrint($mv_pos);
+                    ywMapMoveByEntity($mwid, $mo_pos, $mv_pos, $mob);
+                }
+            }
+            
+        }
+    }
 }
 
 function draw_room($mwid, $room, $nb) {
@@ -222,9 +277,11 @@ function place_mob($mwid, $rooms, $room_idx, $obj_id, $lvl)
         yeCreateString('terf', $o, 'name');
     yeCreateInt($obj_id, $o, 'id');
     yeCreateInt($lvl, $o, 'lvl');
-    yeCreateInt(6 + $lvl * 3, $o, 'hp');
-    yeCreateInt(1 + (yuiRand() & 1) + $lvl * 3, $o, 'atk');
-    yeCreateInt((yuiRand() & 1) + $lvl * 2, $o, 'def');
+    yeCreateInt(6 + $lvl * 4, $o, 'hp');
+    yeCreateInt(1 + (yuiRand() & 1) + $lvl * 4, $o, 'atk');
+    yeCreateInt((yuiRand() & 1) + $lvl * 3, $o, 'def');
+    yeCreateInt($room_idx, $o, 'room_idx');
+    yePrint($o);
     return place_objs($mwid, $rooms, $room_idx, $o);
 }
 
@@ -411,7 +468,7 @@ function init_wid($cwid) {
     yeCreateString("/", $el, "map-char"); // 6, bat, weapon
 
     $el = yeCreateArray($resources);
-    yeCreateString("C", $el, "map-char"); // 7, victory ?
+    yeCreateString(">", $el, "map-char"); // 7, victory ?
 
     $el = yeCreateArray($resources);
     yeCreateString("R", $el, "map-char"); // 8, rat
@@ -426,6 +483,8 @@ function init_wid($cwid) {
                     $GLOBALS['MAP_H']);
     yeCreateFunction('action', $cwid, 'action');
 
+    yeCreateInt(8, $mwid, 'cam-getter');
+
     yeCreateString('center', $mwid, 'cam-type');
     ywSizeCreate(-$GLOBALS['CAM_SIZE_W'] / 2, -$GLOBALS['CAM_SIZE'] / 2,
                  $mwid, 'cam-threshold');
@@ -435,6 +494,7 @@ function init_wid($cwid) {
     yePushBack($pc, $cam, 'pos'); // cam and pos are the same element
     yeCreateString("rgba: 10 10 10", $cwid, "background");
     yeCreateInt(0, $mwid, 'level');
+    yeCreateInt(3, $mwid, 'last_level');
     init_map($mwid, $pc);
     yirl_return_wid($cwid, "container");
 }
