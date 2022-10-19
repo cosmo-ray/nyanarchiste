@@ -541,6 +541,7 @@ function init_wid($cwid) {
     yeCreateInt(0, $mwid, 'level');
     yeCreateInt(3, $mwid, 'last_level');
     init_map($mwid, $pc);
+    ywSetTurnLengthOverwrite(-1);
     yirl_return_wid($cwid, "container");
 }
 
