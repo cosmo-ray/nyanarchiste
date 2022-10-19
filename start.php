@@ -19,6 +19,15 @@ $CAM_SIZE_W = 24;
 
 $TOT_ROOM = 8 * 8;
 
+$SCALE_PIXS = "                " .
+            "   #       #    " .
+            "   #########    " .
+            "   #       #    " .
+            "   #########    " .
+            "   #       #    " .
+            "   #########    " .
+            "   #       #    ";
+
 function add_msg($txwid, $str) {
     $msgs = yeGet($txwid, 'msgs');
     echo $str, PHP_EOL;
@@ -488,7 +497,14 @@ function init_wid($cwid) {
     yeCreateString("^", $el, "map-char"); // 6, nekomimi
 
     $el = yeCreateArray($resources);
-    yeCreateString(">", $el, "map-char"); // 7, victory ?
+    yeCreateString(">", $el, "map-char"); // 7, exit
+    yeCreateString($GLOBALS['SCALE_PIXS'], $el, "map-pixels");
+    $pix_infi = yeCreateArray($el, 'map-pixels-info');
+    $pix_mapping = yeCreateArray($pix_infi, 'mapping');
+    yeCreateInt(0xffffffff, $pix_mapping, '#');
+    ywSizeCreate(2, 4, $pix_infi, 'pix_per_char');
+    ywSizeCreate(16, 8, $pix_infi, 'size');
+
 
     $el = yeCreateArray($resources);
     yeCreateString("R", $el, "map-char"); // 8, rat
