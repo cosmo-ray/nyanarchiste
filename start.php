@@ -50,6 +50,7 @@ function action($cwid, $eves) {
     $txwid = ywCntGetEntry($cwid, 1);
 
     if (yevIsKeyDown($eves, $Y_ESC_KEY) || yevIsKeyDown($eves, $Y_Q_KEY)) {
+        echo "QUIT THE GAME REQUESTED\n";
         if (yeGet($cwid, "quit"))
             yesCall(yeGet($cwid, "quit")); // Untested
         else
@@ -126,6 +127,7 @@ function action($cwid, $eves) {
             init_map($mwid, $pc);
             echo "NEW LEVEL !!!\n";
         } else {
+            echo "YOU WIN !!!! !!!!\n";
             if (yeGet($cwid, "win"))
                 yesCall(yeGet($cwid, "win")); // Untested
             else
