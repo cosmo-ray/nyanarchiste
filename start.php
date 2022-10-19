@@ -381,6 +381,10 @@ function init_map($mwid, $pc) {
     for ($i = 0; $i < $tot_rooms - i; $i++) {
         $rand_w = yuiRand() & ($GLOBALS["MAX_ROOM"] - 1);
         $rand_h = yuiRand() & ($GLOBALS["MAX_ROOM"] - 1);
+        if ($i == 0 && $rand_w < 5)
+            $rand_w = 8;
+        if ($i == 0 && $rand_h < 5)
+            $rand_h = 8;
         if ($rand_w < 4)
             $rand_w = 4;
         if ($rand_h < 4)
