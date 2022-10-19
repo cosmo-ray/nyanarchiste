@@ -270,11 +270,11 @@ function draw_room($mwid, $room, $nb) {
 function place_objs($mwid, $rooms, $room_idx, $obj_id)
 {
     $max_room = $GLOBALS['MAX_ROOM'];
-    $room = $rooms[$room_idx];
-    $x = yuiRand() % ywSizeW($room) - 2;
-    $x += ($room_idx & 7) * $max_room + $max_room / 2 - ywSizeW($room) / 2 + 1;
-    $y = yuiRand() % ywSizeH($room) - 1;
-    $y += floor($room_idx / 8) * $max_room + $max_room / 2 - ywSizeH($room) / 2;
+    $room = yeGet($rooms, $room_idx);
+    $x = yuiMin(yuiRand() % ywSizeW($room) - 1, 0);
+    $x += ($room_idx & 7) * $max_room + $max_room / 2 - (ywSizeW($room)) / 2 + 1;
+    $y = yuiMin(yuiRand() % ywSizeH($room) - 1, 0);
+    $y += floor($room_idx / 8) * $max_room + $max_room / 2 - (ywSizeH($room)) / 2 + 1;
 
     if (yeLen(ywMapCaseXY($mwid, $x, $y)) > 1)
         return false;
