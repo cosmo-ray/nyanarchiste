@@ -20,14 +20,15 @@ define("CAM_SIZE_W", 24);
 
 define("TOT_ROOM", 8 * 8);
 
-$SCALE_PIXS = "                " .
-            "   #       #    " .
-            "   #########    " .
-            "   #       #    " .
-            "   #########    " .
-            "   #       #    " .
-            "   #########    " .
-            "   #       #    ";
+define("SCALE_PIXS",
+       "                " .
+       "   #       #    " .
+       "   #########    " .
+       "   #       #    " .
+       "   #########    " .
+       "   #       #    " .
+       "   #########    " .
+       "   #       #    ");
 
 function add_msg($txwid, $str) {
     $msgs = yeGet($txwid, 'msgs');
@@ -509,7 +510,7 @@ function init_wid($cwid) {
 
     $el = yeCreateArray($resources);
     yeCreateString(">", $el, "map-char"); // 7, exit
-    yeCreateString($GLOBALS['SCALE_PIXS'], $el, "map-pixels");
+    yeCreateString(SCALE_PIXS, $el, "map-pixels");
     $pix_infi = yeCreateArray($el, 'map-pixels-info');
     $pix_mapping = yeCreateArray($pix_infi, 'mapping');
     yeCreateInt(0xffffffff, $pix_mapping, '#');
