@@ -9,15 +9,16 @@
  * ----------------------------------------------------------------------------
  */
 
-$MAP_W = 160;
-$MAP_H = 160;
+define("MAP_W", 160);
+define("MAP_H", 160);
 
-$MAX_ROOM = 16; // $MAP_W / 8;
+// $MAX_ROOM = 16; // $MAP_W / 8;
+define("MAX_ROOM", 16);
 
-$CAM_SIZE = 14;
-$CAM_SIZE_W = 24;
+define("CAM_SIZE", 14);
+define("CAM_SIZE_W", 24);
 
-$TOT_ROOM = 8 * 8;
+define("TOT_ROOM", 8 * 8);
 
 $SCALE_PIXS = "                " .
             "   #       #    " .
@@ -89,7 +90,7 @@ function action($cwid, $eves) {
         }
         if ((yeGetIntAt($cwid, 'turn-cnt') % 70) == 0) {
             $map_lvl = yeGetIntAt($mwid, 'level') + 1;
-            place_mob($mwid, yuiRand() % $GLOBALS["TOT_ROOM"],
+            place_mob($mwid, yuiRand() % TOT_ROOM,
                       yeGet($mwid, 'rooms'), 8, $map_lvl);
             add_msg($txwid, "a new bad guy appear");
         }
@@ -172,7 +173,7 @@ function action($cwid, $eves) {
     // handle monster movement here,
     // move only if enemies are in the same room as PC
     if ($cur_floor == 0 && ($xadd || $yadd)) {
-        $max_room = $GLOBALS['MAX_ROOM'];
+        $max_room = MAX_ROOM;
         $cam = yeGet($mwid, 'cam');
         $cur_room = floor(ywRectX($cam) / $max_room) +
                   8 * floor(ywRectY($cam) / $max_room);
@@ -243,7 +244,7 @@ function action($cwid, $eves) {
 }
 
 function draw_room($mwid, $room, $nb) {
-    $max_room = $GLOBALS['MAX_ROOM'];
+    $max_room = MAX_ROOM;
     $x = $max_room * ($nb & 7) + $max_room / 2;
     $y = $max_room * floor($nb / 8) + $max_room / 2;
     $w = ywSizeW($room);
@@ -276,7 +277,7 @@ function draw_room($mwid, $room, $nb) {
 
 function place_objs($mwid, $rooms, $room_idx, $obj_id)
 {
-    $max_room = $GLOBALS['MAX_ROOM'];
+    $max_room = MAX_ROOM;
     $room = yeGet($rooms, $room_idx);
     $x = yuiMin(yuiRand() % ywSizeW($room) - 1, 0);
     $x += ($room_idx & 7) * $max_room + $max_room / 2 - (ywSizeW($room)) / 2 + 1;
@@ -319,7 +320,7 @@ function mk_corridor($mwid, $rooms, $i)
     $room = yeGet($rooms, $i);
     $x = $i & 7;
     $y = floor($i / 8);
-    $max_room = $GLOBALS['MAX_ROOM'];
+    $max_room = MAX_ROOM;
     $id = null;
     $try = 0;
 
@@ -384,10 +385,10 @@ function mk_corridor($mwid, $rooms, $i)
 
 function init_map($mwid, $pc) {
     $rooms = yeReCreateArray($mwid, "rooms");
-    $tot_rooms = $GLOBALS["TOT_ROOM"];
+    $tot_rooms = TOT_ROOM;
     for ($i = 0; $i < $tot_rooms - i; $i++) {
-        $rand_w = yuiRand() & ($GLOBALS["MAX_ROOM"] - 1);
-        $rand_h = yuiRand() & ($GLOBALS["MAX_ROOM"] - 1);
+        $rand_w = yuiRand() & (MAX_ROOM - 1);
+        $rand_h = yuiRand() & (MAX_ROOM - 1);
         if ($i == 0 && $rand_w < 5)
             $rand_w = 5;
         if ($i == 0 && $rand_h < 5)
@@ -399,7 +400,7 @@ function init_map($mwid, $pc) {
         $r = ywSizeCreate($rand_w, $rand_h, $rooms);
         yeCreateInt(4, $r, 'exits_close');
         draw_room($mwid, $r, $i);
-        //echo 'do my sheet: ', $rand_w," - " , $rand_h, " " , $GLOBALS["MAX_ROOM"], PHP_EOL;
+        //echo 'do my sheet: ', $rand_w," - " , $rand_h, " " , MAX_ROOM, PHP_EOL;
     }
 
     for ($i = 0; $i < $tot_rooms - i; $i++) {
@@ -532,18 +533,17 @@ function init_wid($cwid) {
     $el = yeCreateArray($resources);
     yeCreateString("p", $el, "map-char"); // 11, patch, tmp +1 life
 
-    ywMapInitEntity($mwid, $resources, 0, $GLOBALS['MAP_W'],
-                    $GLOBALS['MAP_H']);
+    ywMapInitEntity($mwid, $resources, 0, MAP_W,
+                    MAP_H);
     yeCreateFunction('action', $cwid, 'action');
 
     yeCreateInt(8, $mwid, 'cam-getter');
 
     yeCreateString('center', $mwid, 'cam-type');
-    ywSizeCreate(-$GLOBALS['CAM_SIZE_W'] / 2, -$GLOBALS['CAM_SIZE'] / 2,
+    ywSizeCreate(-CAM_SIZE_W / 2, -CAM_SIZE / 2,
                  $mwid, 'cam-threshold');
     yeCreateInt(4, $mwid, 'cam-pointer');
-    $cam = ywRectCreateInts(8, 7, $GLOBALS['CAM_SIZE_W'], $GLOBALS['CAM_SIZE'],
-                            $mwid, 'cam');
+    $cam = ywRectCreateInts(8, 7, CAM_SIZE_W, CAM_SIZE, $mwid, 'cam');
     yePushBack($pc, $cam, 'pos'); // cam and pos are the same element
     yeCreateString("rgba: 10 10 10 255", $cwid, "background");
     yeCreateInt(0, $mwid, 'level');
