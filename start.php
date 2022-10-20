@@ -313,6 +313,15 @@ function place_mob($mwid, $rooms, $room_idx, $obj_id, $lvl)
     return place_objs($mwid, $rooms, $room_idx, $o);
 }
 
+function place_rand_good_obj($mwid, $rooms, $room_id)
+{
+    $rid = yuiRand() & 1;
+    if ($rid == 1 && (yuiRand() & 1) == 1)
+        $rid = 6;
+    return place_objs($mwid, $rooms, $room_id,
+                      5 + $rid);
+}
+
 function mk_corridor($mwid, $rooms, $i)
 {
     $room = yeGet($rooms, $i);
@@ -406,13 +415,12 @@ function init_map($mwid, $pc) {
     for ($i = 0; $i < 15; ++$i)
         mk_corridor($mwid, $rooms, yuiRand() % $tot_rooms);
 
+    for ($i = 0; $i < 2; ++$i) {
+        place_rand_good_obj($mwid, $rooms, 0);
+    }
 
     for ($i = 0; $i < 20; ++$i) {
-        $rid = yuiRand() & 1;
-        if ($rid == 1 && (yuiRand() & 1) == 1)
-            $rid = 6;
-        place_objs($mwid, $rooms, yuiRand() % $tot_rooms,
-                   5 + $rid);
+        place_rand_good_obj($mwid, $rooms, yuiRand() % $tot_rooms);
     }
     while (place_objs($mwid, $rooms, yuiRand() % $tot_rooms, 9) == false);
     while (place_objs($mwid, $rooms, yuiRand() % $tot_rooms, 9) == false);
