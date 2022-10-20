@@ -513,9 +513,9 @@ function init_wid($cwid) {
 
     $el = yeCreateArray($resources);
     yeCreateString("@", $el, "map-char"); // 4, pc
-    yeCreateString("                " .
-                   ".        .     *" .
-                   " #.###..#     **" .
+    yeCreateString(".         .     " .
+                   "...    ..#.    *" .
+                   ".#.###..# .   **" .
                    " .# .  . .   ** " .
                    " ##  .   .  **  " .
                    "###     .. *    " .
