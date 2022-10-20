@@ -76,6 +76,7 @@ function action($cwid, $eves) {
     }
 
     if ($xadd || $yadd) {
+        yeIncrAt($cwid, 'turn-cnt');
         ywMapCamAddX($mwid, $xadd);
         ywMapCamAddY($mwid, $yadd);
         if (ywMapCamPointedContainId($mwid, 1)) {
@@ -85,6 +86,12 @@ function action($cwid, $eves) {
             ywMapCamAddY($mwid, -$yadd);
         } else if ($cur_floor == 3 && $xadd) {
             ywMapCamAddX($mwid, -$xadd);
+        }
+        if ((yeGetIntAt($cwid, 'turn-cnt') % 70) == 0) {
+            $map_lvl = yeGetIntAt($mwid, 'level') + 1;
+            place_mob($mwid, yuiRand() % $GLOBALS["TOT_ROOM"],
+                      yeGet($mwid, 'rooms'), 8, $map_lvl);
+            add_msg($txwid, "a new bad guy appear");
         }
     }
     $cur_item = ywMapIdAt(ywMapCamPointedCase($mwid), 1);
@@ -382,13 +389,13 @@ function init_map($mwid, $pc) {
         $rand_w = yuiRand() & ($GLOBALS["MAX_ROOM"] - 1);
         $rand_h = yuiRand() & ($GLOBALS["MAX_ROOM"] - 1);
         if ($i == 0 && $rand_w < 5)
-            $rand_w = 8;
+            $rand_w = 5;
         if ($i == 0 && $rand_h < 5)
-            $rand_h = 8;
-        if ($rand_w < 4)
-            $rand_w = 4;
-        if ($rand_h < 4)
-            $rand_h = 4;
+            $rand_h = 5;
+        if ($rand_w < 3)
+            $rand_w = 3;
+        if ($rand_h < 3)
+            $rand_h = 3;
         $r = ywSizeCreate($rand_w, $rand_h, $rooms);
         yeCreateInt(4, $r, 'exits_close');
         draw_room($mwid, $r, $i);
@@ -430,7 +437,8 @@ function init_map($mwid, $pc) {
     // yePrint($rooms);
 }
 
-function init_wid($cwid) { 
+function init_wid($cwid) {
+    yeCreateInt(0, $cwid, 'turn-cnt');
     $resources = yeCreateArray();
  // if I want to create a container, having mwid and cwid diferent will be usefull
     $entries = yeCreateArray($cwid, "entries");
