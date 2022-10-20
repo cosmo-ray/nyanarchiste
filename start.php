@@ -30,6 +30,26 @@ define("SCALE_PIXS",
        "   #########    " .
        "   #       #    ");
 
+define("CUCK",
+       "                " .
+       "    #######   % " .
+       "   #########  % " .
+       "   # #   # #  % " .
+       "   #   #   #  % " .
+       "   #  ###  # #  " .
+       "   ##########   " .
+       "       #        ");
+
+define("PATCH",
+       "            ####" .
+       "          ####  " .
+       "      #######   " .
+       "     #%%%%%#    " .
+       "    #%%%%%#     " .
+       "   #######      " .
+       "  ####          " .
+       "####            ");
+
 function add_msg($txwid, $str) {
     $msgs = yeGet($txwid, 'msgs');
     echo $str, PHP_EOL;
@@ -528,6 +548,13 @@ function init_wid($cwid) {
 
     $el = yeCreateArray($resources);
     yeCreateString("R", $el, "map-char"); // 8, rat
+    yeCreateString(CUCK, $el, "map-pixels");
+    $pix_infi = yeCreateArray($el, 'map-pixels-info');
+    $pix_mapping = yeCreateArray($pix_infi, 'mapping');
+    yeCreateInt(0xffffffff, $pix_mapping, '#');
+    yeCreateInt(0xaa44a3ff, $pix_mapping, '%');
+    ywSizeCreate(2, 4, $pix_infi, 'pix_per_char');
+    ywSizeCreate(16, 8, $pix_infi, 'size');
 
     $el = yeCreateArray($resources);
     yeCreateString("o", $el, "map-char"); // 9, onigiri
@@ -537,6 +564,13 @@ function init_wid($cwid) {
 
     $el = yeCreateArray($resources);
     yeCreateString("p", $el, "map-char"); // 11, patch, tmp +1 life
+    yeCreateString(PATCH, $el, "map-pixels");
+    $pix_infi = yeCreateArray($el, 'map-pixels-info');
+    $pix_mapping = yeCreateArray($pix_infi, 'mapping');
+    yeCreateInt(0xffdeadff, $pix_mapping, '#');
+    yeCreateInt(0xf4a460ff, $pix_mapping, '%');
+    ywSizeCreate(2, 4, $pix_infi, 'pix_per_char');
+    ywSizeCreate(16, 8, $pix_infi, 'size');
 
     ywMapInitEntity($mwid, $resources, 0, MAP_W,
                     MAP_H);
