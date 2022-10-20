@@ -173,10 +173,9 @@ function action($cwid, $eves) {
     // handle monster movement here,
     // move only if enemies are in the same room as PC
     if ($cur_floor == 0 && ($xadd || $yadd)) {
-        $max_room = MAX_ROOM;
         $cam = yeGet($mwid, 'cam');
-        $cur_room = floor(ywRectX($cam) / $max_room) +
-                  8 * floor(ywRectY($cam) / $max_room);
+        $cur_room = floor(ywRectX($cam) / MAX_ROOM) +
+                  8 * floor(ywRectY($cam) / MAX_ROOM);
         $mobs = yeGet($mwid, 'elem-get');
         for ($i = 0; $i < yeLen($mobs); ++$i) {
             $mob = yeGet($mobs, $i);
@@ -244,9 +243,8 @@ function action($cwid, $eves) {
 }
 
 function draw_room($mwid, $room, $nb) {
-    $max_room = MAX_ROOM;
-    $x = $max_room * ($nb & 7) + $max_room / 2;
-    $y = $max_room * floor($nb / 8) + $max_room / 2;
+    $x = MAX_ROOM * ($nb & 7) + MAX_ROOM / 2;
+    $y = MAX_ROOM * floor($nb / 8) + MAX_ROOM / 2;
     $w = ywSizeW($room);
     $h = ywSizeH($room);
 
@@ -277,12 +275,11 @@ function draw_room($mwid, $room, $nb) {
 
 function place_objs($mwid, $rooms, $room_idx, $obj_id)
 {
-    $max_room = MAX_ROOM;
     $room = yeGet($rooms, $room_idx);
     $x = yuiMin(yuiRand() % ywSizeW($room) - 1, 0);
-    $x += ($room_idx & 7) * $max_room + $max_room / 2 - (ywSizeW($room)) / 2 + 1;
+    $x += ($room_idx & 7) * MAX_ROOM + MAX_ROOM / 2 - (ywSizeW($room)) / 2 + 1;
     $y = yuiMin(yuiRand() % ywSizeH($room) - 1, 0);
-    $y += floor($room_idx / 8) * $max_room + $max_room / 2 - (ywSizeH($room)) / 2 + 1;
+    $y += floor($room_idx / 8) * MAX_ROOM + MAX_ROOM / 2 - (ywSizeH($room)) / 2 + 1;
 
     if (yeLen(ywMapCaseXY($mwid, $x, $y)) > 1)
         return false;
@@ -320,7 +317,6 @@ function mk_corridor($mwid, $rooms, $i)
     $room = yeGet($rooms, $i);
     $x = $i & 7;
     $y = floor($i / 8);
-    $max_room = MAX_ROOM;
     $id = null;
     $try = 0;
 
@@ -332,8 +328,8 @@ function mk_corridor($mwid, $rooms, $i)
     $target = $i;
     $x_target = 0;
     $y_target = 0;
-    $start_x = $x * $max_room + $max_room / 2;
-    $start_y = $y * $max_room + $max_room / 2;
+    $start_x = $x * MAX_ROOM + MAX_ROOM / 2;
+    $start_y = $y * MAX_ROOM + MAX_ROOM / 2;
     $r = yuiRand() & 3;
 
     if ($r == 0) {
@@ -371,11 +367,11 @@ function mk_corridor($mwid, $rooms, $i)
 
     $targeted_room = yeGet($rooms, $target);
     $end_x = $target & 7; 
-    $end_x = $end_x * $max_room + $max_room / 2 +
+    $end_x = $end_x * MAX_ROOM + MAX_ROOM / 2 +
            (ywSizeW($targeted_room) * $x_target) / 2;
 
     $end_y = floor($target / 8); 
-    $end_y = $end_y * $max_room + $max_room / 2 +
+    $end_y = $end_y * MAX_ROOM + MAX_ROOM / 2 +
            (ywSizeH($targeted_room) * $y_target) / 2;
     ywMapDrawSegment($mwid, ywPosCreate($start_x, $start_y),
                      ywPosCreate($end_x, $end_y), $id,
