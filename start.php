@@ -20,7 +20,7 @@ define("CAM_SIZE_W", 24);
 
 define("TOT_ROOM", 8 * 8);
 
-define("SCALE_PIXS",
+define("LADDER_PIXS",
        "                " .
        "   #       #    " .
        "   #########    " .
@@ -560,7 +560,7 @@ function init_wid($cwid) {
 
     $el = yeCreateArray($resources);
     yeCreateString(">", $el, "map-char"); // 7, exit
-    yeCreateString(SCALE_PIXS, $el, "map-pixels");
+    yeCreateString(LADDER_PIXS, $el, "map-pixels");
     $pix_infi = yeCreateArray($el, 'map-pixels-info');
     $pix_mapping = yeCreateArray($pix_infi, 'mapping');
     yeCreateInt(0xffffffff, $pix_mapping, '#');
