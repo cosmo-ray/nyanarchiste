@@ -86,19 +86,50 @@ function add_msg($txwid, $str) {
                   yeGetStringAt($msgs, 3));
 }
 
+function regen_map($mwid, $pc) {
+    ywMapReset($mwid);
+    ywMapSetCamPos($mwid, ywPosCreate(8, 7));
+    init_map($mwid, $pc);
+}
+
+
 function action($cwid, $eves) {
     $pc = yeGet($cwid, 'pc');
+    $end_state = yeGet($cwid, 'end_state');
     $equipement = yeGet($pc, 'equipement');
     $stats = yeGet($pc, 'stats');
     $mwid = ywCntGetEntry($cwid, 0);
     $txwid = ywCntGetEntry($cwid, 1);
 
+    if ($end_state != null) {
+        if (yevIsKeyDown($eves, $Y_ESC_KEY) || yevIsKeyDown($eves, $Y_Q_KEY)) {
+            if (yeGet($cwid, yeGetString($end_state)))
+                yesCall(yeGet($cwid, yeGetString($end_state))); // Untested
+            else
+                yesCall(ygGet('FinishGame'));
+        } else if (yevIsKeyDown($eves, $Y_R_KEY)) {
+            add_msg($txwid, "Game restart");
+            yeSetIntAt($mwid, 'level', 0);
+            regen_map($mwid, $pc);
+
+            $equipement = yeReCreateArray($pc, 'equipement');
+            yeCreateInt(1, $equipement, "weapon");
+            yeCreateString('bat', $equipement, "weapon_name");
+            yeCreateString('nekomimi', $equipement, "hat_name");
+            yeCreateInt(0, $equipement, "hat");
+
+            $mlife = yeReCreateInt(8, $pc, 'max_life');
+            yeReCreateInt(yeGetInt($mlife), $pc, 'life');
+            yeReCreateInt(0, $pc, 'xp');
+            yeRemoveChildByStr($cwid, 'end_state');
+        }
+        yirl_return($YEVE_ACTION);
+        return;
+    }
+
     if (yevIsKeyDown($eves, $Y_ESC_KEY) || yevIsKeyDown($eves, $Y_Q_KEY)) {
-        echo "QUIT THE GAME REQUESTED\n";
-        if (yeGet($cwid, "quit"))
-            yesCall(yeGet($cwid, "quit")); // Untested
-        else
-            yesCall(ygGet('FinishGame'));
+        add_msg($txwid, "QUIT THE GAME REQUESTED");
+        yeCreateString("quit", $cwid, 'end_state');
     }
     $xadd = 0;
     $yadd = 0;
@@ -143,14 +174,15 @@ function action($cwid, $eves) {
         $cur_item == 10 || $cur_item == 11) {
         if ($cur_item == 6) {
             yeIncrAt($equipement, 'hat');
-            add_msg($txwid, "Nekomimi upgrade, Nekomimi is now a Nekomimi +".
+            add_msg($txwid, "Hat upgrade to " .
+                    yeGetStringAt($equipement, 'hat_name') . " +".
                     yeGetIntAt($equipement, 'hat'));
         } else if ($cur_item == 5) {
             yeIncrAt($equipement, 'weapon');
-            add_msg($txwid, "New weapon upgrade ! " .
-                    yeGetStringAt($equipement, 'weapon_name') . " +".
+            add_msg($txwid, "Weapon upgrade! " .
+                    yeGetStringAt($equipement, 'weapon_name') . "+".
                     (string)(yeGetIntAt($equipement, 'weapon') -1).
-                    " to break head, and bring peace, UwU");
+                    " to smatch head & bring peace UwU!");
         } else if ($cur_item == 9) {
             add_msg($txwid, 'Nom nom nom, tuna onigiri wa oishi desu neeeeee ?');
             yeSetIntAt($pc, 'life', yeGetIntAt($pc, 'max_life'));
@@ -172,17 +204,12 @@ function action($cwid, $eves) {
         $last_lvl = yeGetIntAt($mwid, 'last_level');
 
         if ($map_lvl < $last_lvl) {
-            ywMapReset($mwid);
             yeIncrAt($mwid, 'level');
-            ywMapSetCamPos($mwid, ywPosCreate(8, 7));
-            init_map($mwid, $pc);
-            echo "NEW LEVEL !!!\n";
+            regen_map($mwid, $pc);
+            add_msg($txwid, "Go deeper into bourgeoissy-hell");
         } else {
-            echo "YOU WIN !!!! !!!!\n";
-            if (yeGet($cwid, "win"))
-                yesCall(yeGet($cwid, "win")); // Untested
-            else
-                yesCall(ygGet('FinishGame'));
+            add_msg($txwid, "YOU WIN !!!! !!!!");
+            yeCreateString("win", $cwid, 'end_state');
         }
     } else if ($cur_item == 8) {
         $enemy = yeGet(ywMapCamPointedCase($mwid), 1); 
@@ -264,11 +291,8 @@ function action($cwid, $eves) {
                             ' ' . yeGetStringAt($pc, 'name') . ' life left: ' . yeGetIntAt($pc, 'life'));
 
                     if (yeGetIntAt($pc, 'life') < 0) {
-                        echo "YOU LOSE 'CAUS YOUR MEDIOCRE AT BEST" . PHP_EOL;
-                        if (yeGet($cwid, "lose"))
-                            yesCall(yeGet($cwid, "lose")); // Untested
-                        else
-                            yesCall(ygGet('FinishGame'));
+                        add_msg($txwid, "YOU LOSE 'CAUS YOUR MEDIOCRE AT BEST");
+                        yeCreateString("lose", $cwid, 'end_state');
                     }
 
                     echo "can attack PC !!!";
@@ -282,7 +306,7 @@ function action($cwid, $eves) {
             
         }
     }
-    return $YEVE_ACTION;
+    yirl_return($YEVE_ACTION);
 }
 
 function draw_room($mwid, $room, $nb) {
