@@ -118,9 +118,9 @@ function action($cwid, $eves) {
             yeCreateString('nekomimi', $equipement, "hat_name");
             yeCreateInt(0, $equipement, "hat");
 
-            $mlife = yeReCreateInt(8, $pc, 'max_life');
-            yeReCreateInt(yeGetInt($mlife), $pc, 'life');
-            yeReCreateInt(0, $pc, 'xp');
+            yeSetIntAt($pc, 'max_life', 10);
+            yeSetIntAt($pc, 'life', yeGetIntAt($pc, 'max_life'));
+            yeSetIntAt($pc, 'xp', 0);
             yeRemoveChildByStr($cwid, 'end_state');
         }
         yirl_return($YEVE_ACTION);
@@ -292,6 +292,7 @@ function action($cwid, $eves) {
 
                     if (yeGetIntAt($pc, 'life') < 0) {
                         add_msg($txwid, "YOU LOSE 'CAUS YOUR MEDIOCRE AT BEST");
+                        add_msg($txwid, "press 'r' to restart, 'q/ESC' to quit");
                         yeCreateString("lose", $cwid, 'end_state');
                     }
 
