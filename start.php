@@ -104,7 +104,7 @@ function action($cwid, $eves) {
     if ($end_state != null) {
         if (yevIsKeyDown($eves, $Y_ESC_KEY) || yevIsKeyDown($eves, $Y_Q_KEY)) {
             if (yeGet($cwid, yeGetString($end_state)))
-                yesCall(yeGet($cwid, yeGetString($end_state))); // Untested
+                yesCall(yeGet($cwid, yeGetString($end_state)), $cwid); // Untested
             else
                 yesCall(ygGet('FinishGame'));
         } else if (yevIsKeyDown($eves, $Y_R_KEY)) {
@@ -634,6 +634,9 @@ function init_wid($cwid) {
     ywSizeCreate(2, 4, $pix_infi, 'pix_per_char');
     ywSizeCreate(16, 8, $pix_infi, 'size');
 
+    $cam_size_w = CAM_SIZE_W;
+    if (ywRectW(yeGet($cwid, "parent-rect")) > 800)
+        $cam_size_w += 8;
     ywMapInitEntity($mwid, $resources, 0, MAP_W,
                     MAP_H);
     yeCreateFunction('action', $cwid, 'action');
@@ -641,10 +644,10 @@ function init_wid($cwid) {
     yeCreateInt(8, $mwid, 'cam-getter');
 
     yeCreateString('center', $mwid, 'cam-type');
-    ywSizeCreate(-CAM_SIZE_W / 2, -CAM_SIZE / 2,
+    ywSizeCreate(-$cam_size_w / 2, -CAM_SIZE / 2,
                  $mwid, 'cam-threshold');
     yeCreateInt(4, $mwid, 'cam-pointer');
-    $cam = ywRectCreateInts(8, 7, CAM_SIZE_W, CAM_SIZE, $mwid, 'cam');
+    $cam = ywRectCreateInts(8, 7, $cam_size_w, CAM_SIZE, $mwid, 'cam');
     yePushBack($pc, $cam, 'pos'); // cam and pos are the same element
     yeCreateString("rgba: 10 10 10 255", $cwid, "background");
     yeCreateInt(0, $mwid, 'level');
